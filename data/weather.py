@@ -1,4 +1,4 @@
-# singapore_weather_prediction dataset generator
+# CIFAR10 Downloader
 
 import logging
 import pickle
@@ -20,10 +20,10 @@ def get_test():
     return _get_dataset("test")
 
 def get_shape_input():
-    return (None, 11, 9, 1)
+    return (None, 30, 11, 9)
 
 def get_shape_label():
-    return (None,11,9,1)
+    return (None,11*9)
 
 def num_classes():
     return 10
@@ -59,7 +59,7 @@ def _get_dataset(split):
     time_stamps = []
     targets = []
     # for each image
-    for line in range(0,2388,12):
+    for line in range(0,(len(content)-1),12):
         time_stamp = content[line]
         img = []
         temp1 = content[(line+1):(line+12)]
@@ -67,22 +67,23 @@ def _get_dataset(split):
         for i in range(0,11):
 
             temp2 = temp1[i].split()
-            # for each pixel
+            # convert each element into a pixel/temperature value
             temp3 = [float(x) for x in temp2]
-            img.append(temp3)
+            img.append(np.array(temp3))
+        img = np.reshape(np.concatenate(img), [11, 9])
 
         imgs.append(img)
         time_stamps.append(time_stamp)
 
-    for hour in range(0,198):
-        next_img = imgs[hour+1]
-        targets.append(next_img)
+    STEP_SIZE = 30
+    inpts = []
+    preds = []
+    total_hours = np.int((len(content)-1)/12)
+    for hour in range(0,(total_hours-STEP_SIZE)):
+        print(hour)
+        inpt = imgs[hour:hour+STEP_SIZE]
+        pred = imgs[(STEP_SIZE+hour)]
+        inpts.append(np.reshape(np.concatenate(inpt),[-1,11,9]))
+        preds.append(pred)
 
-
-    # Now we flatten the arrays
-    #imgs = np.concatenate(imgs)
-    #time_stamps = np.concatenate(time_stamps)
-
-    # Convert images to [0..1] range
-    #imgs = imgs.astype(np.float32)/255.0
-    return imgs, targets
+    return np.array(inpts), np.reshape(np.array(preds),[-1, 99])
