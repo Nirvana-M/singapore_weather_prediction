@@ -1,5 +1,3 @@
-# CIFAR10 Downloader
-
 import logging
 import pickle
 import math
