@@ -72,18 +72,35 @@ def _get_dataset(split):
             img.append(np.array(temp3))
         img = np.reshape(np.concatenate(img), [11, 9])
 
-        imgs.append(img)
+        img_32_32_3 = [0] * 32
+        for i in range(32):
+            img_32_32_3[i] = [0] * 32
+        for i in range(32):
+            for j in range(32):
+                img_32_32_3[i][j] = [0] * 3
+
+        for item in range(3):
+            for i in range(11):
+                for j in range(9):
+                    img_32_32_3[i][j][item] = img[i][j]
+
+
+        #imgs.append(img)
+        imgs.append(img_32_32_3)
         time_stamps.append(time_stamp)
 
     STEP_SIZE = 30
     inpts = []
-    preds = []
+#    preds = []
     total_hours = np.int((len(content)-1)/12)
     for hour in range(0,(total_hours-STEP_SIZE)):
         print(hour)
         inpt = imgs[hour:hour+STEP_SIZE]
-        pred = imgs[(STEP_SIZE+hour)]
-        inpts.append(np.reshape(np.concatenate(inpt),[-1,11,9]))
-        preds.append(pred)
+        #pred = imgs[(STEP_SIZE+hour)]
+        inpts.append(np.reshape(np.concatenate(inpt),[-1,32,32,3]))
+        #preds.append(pred)
 
-    return np.array(inpts), np.reshape(np.array(preds),[-1, 99])
+    return_item_y = [0] * len(inpts)
+
+    return np.array(inpts) , return_item_y
+    #np.reshape(np.array(preds),[-1, 99])

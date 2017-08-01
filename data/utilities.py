@@ -1,3 +1,5 @@
+# CIFAR10 Downloader
+
 import logging
 import pickle
 import math
@@ -59,8 +61,9 @@ def infinite_generator(data, batch_size):
         # If we wrap around the back of the dataset:
         if j >= x.shape[0]:
             rv = list(range(i, x.shape[0])) + list(range(0, j - x.shape[0]))
-            yield (x[rv,...], y[rv])
+            #yield (x[rv,...], y[rv])
+            yield (x[rv, ...], y[0])
             i = j - x.shape[0]
         else:
-            yield (x[i:j,...], y[i:j])
+            yield (x[i:j,...], y[0:0])
             i = j
