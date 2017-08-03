@@ -77,7 +77,7 @@ def conv_layer(inputs, kernel_size, stride, num_features, idx, linear = False):
     conv_biased = tf.nn.bias_add(conv, biases)
     if linear:
       return conv_biased
-    conv_rect = tf.nn.elu(conv_biased,name='{0}_conv'.format(idx))
+    conv_rect = tf.nn.tanh(conv_biased,name='{0}_conv'.format(idx))
     return conv_rect
 
 def transpose_conv_layer(inputs, kernel_size, stride, num_features, idx, linear = False):
@@ -96,7 +96,7 @@ def transpose_conv_layer(inputs, kernel_size, stride, num_features, idx, linear 
     conv_biased = tf.nn.bias_add(conv, biases)
     if linear:
       return conv_biased
-    conv_rect = tf.nn.elu(conv_biased,name='{0}_transpose_conv'.format(idx))
+    conv_rect = tf.nn.tanh(conv_biased,name='{0}_transpose_conv'.format(idx))
     return conv_rect
      
 
@@ -116,5 +116,5 @@ def fc_layer(inputs, hiddens, idx, flat = False, linear = False):
       return tf.add(tf.matmul(inputs_processed,weights),biases,name=str(idx)+'_fc')
   
     ip = tf.add(tf.matmul(inputs_processed,weights),biases)
-    return tf.nn.elu(ip,name=str(idx)+'_fc')
+    return tf.nn.tanh(ip,name=str(idx)+'_fc')
 

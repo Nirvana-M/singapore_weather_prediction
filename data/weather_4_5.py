@@ -79,7 +79,18 @@ def _get_dataset(split):
         #imgs.append(img_4_5_1)
         time_stamps.append(time_stamp)
 
-    # TODO: normalization
+    # normalization
+    max_t = float('-inf')
+    min_t = float('inf')
+    for i in range(97):
+        curr_max_t = np.max(imgs[i])
+        curr_min_t = np.min((imgs[i])[np.nonzero(imgs[i])])
+        if curr_max_t > max_t:
+            max_t = curr_max_t
+        if curr_min_t < min_t:
+            min_t = curr_min_t
+
+    # rescale
 
     STEP_SIZE = 30
     inpts = []
