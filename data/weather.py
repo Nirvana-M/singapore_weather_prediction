@@ -1,4 +1,4 @@
-# CIFAR10 Downloader
+
 
 import logging
 import pickle
@@ -17,6 +17,7 @@ def get_train():
     return _get_dataset("train")
 
 def get_test():
+
     return _get_dataset("test")
 
 def get_shape_input():
@@ -85,8 +86,22 @@ def _get_dataset(split):
                     img_32_32_3[i][j][item] = img[i][j]
 
 
+# img_32_32_3 --> img_4_5_1
+
+        img_4_5_1 = [0] * 4
+        for i in range(4):
+            img_4_5_1[i] = [0] * 5
+        for i in range(4):
+            for j in range(5):
+                img_4_5_1[i][j] = [0] * 1
+
+        for item in range(1):
+            for i in range(4):
+                for j in range(5):
+                    img_4_5_1[i][j][item] = img_32_32_3[i][j][item]
+
         #imgs.append(img)
-        imgs.append(img_32_32_3)
+        imgs.append(img_4_5_1)
         time_stamps.append(time_stamp)
 
     STEP_SIZE = 30
@@ -97,7 +112,7 @@ def _get_dataset(split):
         print(hour)
         inpt = imgs[hour:hour+STEP_SIZE]
         #pred = imgs[(STEP_SIZE+hour)]
-        inpts.append(np.reshape(np.concatenate(inpt),[-1,32,32,3]))
+        inpts.append(np.reshape(np.concatenate(inpt),[-1,4,5,1]))
         #preds.append(pred)
 
     return_item_y = [0] * len(inpts)
