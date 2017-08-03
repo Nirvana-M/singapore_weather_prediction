@@ -53,7 +53,7 @@ def _get_dataset(split):
 
     # read the data_file line by line
     file = open(file_path, "r")
-    content = file.read().split(sep="\n")
+    content = file.read().split("\n")
 
     imgs = []
     time_stamps = []
