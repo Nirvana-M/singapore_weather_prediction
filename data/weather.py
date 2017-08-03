@@ -1,4 +1,4 @@
-
+# CIFAR10 Downloader
 
 import logging
 import pickle
@@ -48,7 +48,7 @@ def _unpickle_file(filename):
 def _get_dataset(split):
     assert split == "test" or split == "train"
     path = "data"
-    data_file = "weather_data_file.txt"
+    data_file = "weather_data_file_4_5.txt"
 
     file_path = os.path.join(path, data_file)
 
@@ -60,54 +60,29 @@ def _get_dataset(split):
     time_stamps = []
     targets = []
     # for each image
-    for line in range(0,(len(content)-1),12):
+    nRows = 4
+    nCols = 5
+    for line in range(0,(len(content)-1),(nRows + 1)):
         time_stamp = content[line]
         img = []
-        temp1 = content[(line+1):(line+12)]
+        temp1 = content[(line+1):(line+(nRows + 1))]
         # for each line
-        for i in range(0,11):
-
+        for i in range(0,nRows):
             temp2 = temp1[i].split()
             # convert each element into a pixel/temperature value
             temp3 = [float(x) for x in temp2]
             img.append(np.array(temp3))
-        img = np.reshape(np.concatenate(img), [11, 9])
-
-        img_32_32_3 = [0] * 32
-        for i in range(32):
-            img_32_32_3[i] = [0] * 32
-        for i in range(32):
-            for j in range(32):
-                img_32_32_3[i][j] = [0] * 3
-
-        for item in range(3):
-            for i in range(11):
-                for j in range(9):
-                    img_32_32_3[i][j][item] = img[i][j]
+        img = np.reshape(np.concatenate(img), [nRows, nCols])
 
 
-# img_32_32_3 --> img_4_5_1
-
-        img_4_5_1 = [0] * 4
-        for i in range(4):
-            img_4_5_1[i] = [0] * 5
-        for i in range(4):
-            for j in range(5):
-                img_4_5_1[i][j] = [0] * 1
-
-        for item in range(1):
-            for i in range(4):
-                for j in range(5):
-                    img_4_5_1[i][j][item] = img_32_32_3[i][j][item]
-
-        #imgs.append(img)
-        imgs.append(img_4_5_1)
+        imgs.append(img)
+        #imgs.append(img_4_5_1)
         time_stamps.append(time_stamp)
 
     STEP_SIZE = 30
     inpts = []
 #    preds = []
-    total_hours = np.int((len(content)-1)/12)
+    total_hours = np.int((len(content)-1)/(nRows + 1))
     for hour in range(0,(total_hours-STEP_SIZE)):
         print(hour)
         inpt = imgs[hour:hour+STEP_SIZE]
