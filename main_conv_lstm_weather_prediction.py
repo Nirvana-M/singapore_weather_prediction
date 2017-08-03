@@ -18,11 +18,11 @@ tf.app.flags.DEFINE_integer('seq_length', 30,
                             """size of hidden layer""")
 tf.app.flags.DEFINE_integer('seq_start', 5,
                             """ start of seq generation""")
-tf.app.flags.DEFINE_integer('max_step', 2000,
+tf.app.flags.DEFINE_integer('max_step', 200000,
                             """max num of steps""")
 tf.app.flags.DEFINE_float('keep_prob', .8,
                             """for dropout""")
-tf.app.flags.DEFINE_float('lr', .001,
+tf.app.flags.DEFINE_float('lr', .0001,
                             """for learning rate""")
 tf.app.flags.DEFINE_integer('batch_size', 160,
                             """batch size for training""")
@@ -30,19 +30,19 @@ tf.app.flags.DEFINE_float('weight_init', .1,
                             """weight init for fully connected layers""")
 
 def network(inputs, hidden, lstm=True):
-  conv1 = ld.conv_layer(inputs, 3, 2, 8, "encode_1")
+  conv1 = ld.conv_layer(inputs, 2, 1, 8, "encode_1")
   # conv2
-  conv2 = ld.conv_layer(conv1, 3, 1, 8, "encode_2")
+  conv2 = ld.conv_layer(conv1, 2, 1, 16, "encode_2")
   # conv3
-  conv3 = ld.conv_layer(conv2, 3, 2, 8, "encode_3")
+  conv3 = ld.conv_layer(conv2, 2, 2, 32, "encode_3")
   # conv4
-  conv4 = ld.conv_layer(conv3, 1, 1, 4, "encode_4")
+  conv4 = ld.conv_layer(conv3, 1, 1, 8, "encode_4")
   y_0 = conv4
   if lstm:
     # conv lstm cell
     with tf.variable_scope('conv_lstm', initializer = tf.random_uniform_initializer(-.01, 0.1)):
       #cell = BasicConvLSTMCell.BasicConvLSTMCell([6,5], [3,3], 4)
-      cell = BasicConvLSTMCell.BasicConvLSTMCell([8, 8], [3, 3], 4)
+      cell = BasicConvLSTMCell.BasicConvLSTMCell([2, 3], [2, 2], 8)
       if hidden is None:
         hidden = cell.zero_state(FLAGS.batch_size, tf.float32)
       y_1, hidden = cell(y_0, hidden)
@@ -52,12 +52,12 @@ def network(inputs, hidden, lstm=True):
   # conv5
   conv5 = ld.transpose_conv_layer(y_1, 1, 1, 8, "decode_5")
   # conv6
-  conv6 = ld.transpose_conv_layer(conv5, 3, 2, 8, "decode_6")
+  conv6 = ld.transpose_conv_layer(conv5, 2, 2, 32, "decode_6")
   # conv7
-  conv7 = ld.transpose_conv_layer(conv6, 3, 1, 8, "decode_7")
+  conv7 = ld.transpose_conv_layer(conv6, 2, 1, 16, "decode_7")
   # x_1
   #x_1 = ld.transpose_conv_layer(conv7, 3, 2, 1, "decode_8", True) # set activation to linear
-  x_1 = ld.transpose_conv_layer(conv7, 3, 2, 3, "decode_8", True)  # set activation to linear
+  x_1 = ld.transpose_conv_layer(conv7, 2, 1, 1, "decode_8", True)  # set activation to linear
   return x_1, hidden
 
 # make a template for reuse
@@ -68,7 +68,7 @@ def train():
   with tf.Graph().as_default():
     # make inputs : made change
     #x = tf.placeholder(tf.float32, [None, FLAGS.seq_length, 11, 9, 1])
-    x = tf.placeholder(tf.float32, [None, FLAGS.seq_length, 32, 32, 3])
+    x = tf.placeholder(tf.float32, [None, FLAGS.seq_length, 4, 5, 1])
     # possible dropout inside
     keep_prob = tf.placeholder("float")
     x_dropout = tf.nn.dropout(x, keep_prob)
@@ -131,7 +131,7 @@ def train():
 
       print("goto training step " + str(step))
 
-      if step%10 == 0 and step != 0:
+      if step%100 == 0 and step != 0:
         summary_str = sess.run(summary_op, feed_dict={x:dat, keep_prob:FLAGS.keep_prob})
         summary_writer.add_summary(summary_str, step)
         print("time per batch is " + str(elapsed))
@@ -140,7 +140,7 @@ def train():
 
       assert not np.isnan(loss_r), 'Model diverged with loss = NaN'
 
-      if step%100 == 0:
+      if step%1000 == 0:
         checkpoint_path = os.path.join(FLAGS.train_dir, 'model.ckpt')
         saver.save(sess, checkpoint_path, global_step=step)
         print("saved to " + FLAGS.train_dir)
@@ -156,5 +156,6 @@ def main(argv=None):  # pylint: disable=unused-argument
 
 if __name__ == '__main__':
   tf.app.run()
+
 
 
