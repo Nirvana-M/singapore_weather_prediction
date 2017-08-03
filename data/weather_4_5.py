@@ -82,7 +82,7 @@ def _get_dataset(split):
     # normalization
     max_t = float('-inf')
     min_t = float('inf')
-    for i in range(97):
+    for i in range(len(imgs)):
         curr_max_t = np.max(imgs[i])
         curr_min_t = np.min((imgs[i])[np.nonzero(imgs[i])])
         if curr_max_t > max_t:
@@ -91,6 +91,9 @@ def _get_dataset(split):
             min_t = curr_min_t
 
     # rescale
+    normalize = lambda x : ((x - min_t) / (max_t - min_t)) * 2 - 1
+    vect_normalize = np.vectorize(normalize)
+    imgs = vect_normalize(imgs)
 
     STEP_SIZE = 30
     inpts = []
