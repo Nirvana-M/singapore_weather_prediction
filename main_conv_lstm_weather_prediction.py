@@ -91,7 +91,7 @@ def train():
 
 
     # calc total loss (compare x_t to x_t+1)
-    loss = tf.nn.l2_loss(x[:,FLAGS.seq_start+1:,:,:,:] - x_unwrap[:,FLAGS.seq_start:,:,:,:])
+    loss = tf.nn.l2_loss(x[:,FLAGS.seq_start+1:, :, :, :] - x_unwrap[:,FLAGS.seq_start:,:,:,:])
     tf.summary.scalar('loss', loss)
 
     # data generator
@@ -126,7 +126,7 @@ def train():
     for step in range(FLAGS.max_step):
       dat, lbl = next(data_generator)
       t = time.time()
-      _, loss_r = sess.run([train_op, loss],feed_dict={x:dat, keep_prob:FLAGS.keep_prob})
+      _, loss_r = sess.run([train_op, loss], feed_dict={x: dat, keep_prob: FLAGS.keep_prob})
       elapsed = time.time() - t
 
       print("goto training step " + str(step))
